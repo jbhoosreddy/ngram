@@ -13,7 +13,7 @@ class nGram():
 
 Usage:
 >>> ng = nGram(n=5, corpus_file=None, cache=False)
->>> print ng.sentence_probability(sentence='hold your horses', n=2, form='log')
+>>> print(ng.sentence_probability(sentence='hold your horses', n=2, form='log'))
 >>> -18.655540764
 """
     def __init__(self, n=1, corpus_file=None, cache=False):
@@ -34,13 +34,13 @@ Usage:
 
     def load_corpus(self, file_name):
         """Method to load external file which contains raw corpus."""
-        print "Loading Corpus from data file"
+        print("Loading Corpus from data file")
         if file_name is None:
             file_name = "corpus.data"
         corpus_file = open(file_name, 'r')
         corpus = corpus_file.read()
         corpus_file.close()
-        print "Processing Corpus"
+        print("Processing Corpus")
         self.words = corpus.split(' ')
     
     def create_unigram(self, cache):
