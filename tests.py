@@ -30,12 +30,10 @@ class TestNgram(unittest.TestCase):
 
     def test_quadri_log(self):
         probability = ng.sentence_probability(sentence='hold your horses', n=4, form='log')
-        print probability
         self.assertAlmostEqual(probability, 0)
 
     def test_quadri_antilog(self):
         probability = ng.sentence_probability(sentence='hold your horses', n=4, form='antilog')
-        print probability
         self.assertAlmostEqual(probability, 1)
 
     def test_penti_log(self):
