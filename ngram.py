@@ -2,146 +2,175 @@ from __future__ import division
 from collections import Counter
 import math as calc
 
+
 class nGram():
-    """A program which creates n-Gram (1-5) Maximum Likelihood Probabilistic Language Model with Laplace Add-1 smoothing and stores it in hash-able dictionary form.
+    """A program which creates n-Gram (1-5) Maximum Likelihood Probabilistic Language Model with Laplace Add-1 smoothing
+    and stores it in hash-able dictionary form.
+    n: number of bigrams (supports up to 5)
+    corpus_file: relative path to the corpus file.
+    cache: saves computed values if True
+
 
 Usage:
->>> ng = nGram(True, True, True)
->>> print ng.sentenceprobability('hold your horses', 'bi', 'log')
+>>> ng = nGram(n=5, corpus_file=None, cache=False)
+>>> print ng.sentence_probability(sentence='hold your horses', n=2, form='log')
 >>> -18.655540764
 """
-    def __init__(self, uni=False, bi=False, tri=False, quadri=False, penti=False):
+    def __init__(self, n=1, corpus_file=None, cache=False):
         """Constructor method which loads the corpus from file and creates ngrams based on imput parameters."""
-        self.words=self.loadCorpus()
-        if uni : self.unigram=self.createUnigram(self.words)
-        if bi : self.bigram=self.createBigram(self.words)
-        if tri : self.trigram=self.createTrigram(self.words)
-        if quadri : self.quadrigram=self.createQuadrigram(self.words)
-        if penti : self.pentigram=self.createPentigram(self.words)
+        self.words = []
+        self.load_corpus(corpus_file)
+        self.unigram = self.bigram = self.trigram = self.quadrigram = self.pentigram = None
+        self.create_unigram(cache)
+        if n >= 2:
+            self.create_bigram(cache)
+        if n >= 3:
+            self.create_trigram(cache)
+        if n >= 4:
+            self.create_quadrigram(cache)
+        if n >= 5:
+            self.create_pentigram(cache)
         return
 
-    def loadCorpus(self):
+    def load_corpus(self, file_name):
         """Method to load external file which contains raw corpus."""
         print "Loading Corpus from data file"
-        corpusfile = open('corpus.data', 'r')
-        corpus = corpusfile.read()
-        corpusfile.close()
+        if file_name is None:
+            file_name = "corpus.data"
+        corpus_file = open(file_name, 'r')
+        corpus = corpus_file.read()
+        corpus_file.close()
         print "Processing Corpus"
-        words = corpus.split(' ')
-        return words
+        self.words = corpus.split(' ')
     
-    def createUnigram(self, words):
+    def create_unigram(self, cache):
         """Method to create Unigram Model for words loaded from corpus."""
         print("Creating Unigram Model")
-        unigram = dict()
-        #unigramfile = open('unigram.data', 'w')
+        unigram_file = None
+        if cache:
+            unigram_file = open('unigram.data', 'w')
         print("Calculating Count for Unigram Model")
-        unigram = Counter(words)
-        #unigramfile.write(str(unigram))
-        #unigramfile.close()
-        return unigram
+        unigram = Counter(self.words)
+        if cache:
+            unigram_file.write(str(unigram))
+            unigram_file.close()
+        self.unigram = unigram
 
-    def createBigram(self, words):
+    def create_bigram(self, cache):
         """Method to create Bigram Model for words loaded from corpus."""
         print("Creating Bigram Model")
+        words = self.words
         biwords = []
         for index, item in enumerate(words):
-            if index==len(words)-1:
+            if index == len(words)-1:
                 break
             biwords.append(item+' '+words[index+1])
         print("Calculating Count for Bigram Model")
-        bigram = dict()
-        #bigramfile = open('bigram.data', 'w')
+        bigram_file = None
+        if cache:
+            bigram_file = open('bigram.data', 'w')
         bigram = Counter(biwords)
-        #bigramfile.write(str(bigram))
-        #bigramfile.close()
-        return bigram
+        if cache:
+            bigram_file.write(str(bigram))
+            bigram_file.close()
+        self.bigram = bigram
 
-    def createTrigram(self, words):
+    def create_trigram(self, cache):
         """Method to create Trigram Model for words loaded from corpus."""
         print("Creating Trigram Model")
+        words = self.words
         triwords = []
         for index, item in enumerate(words):
-            if index==len(words)-2:
+            if index == len(words)-2:
                 break
             triwords.append(item+' '+words[index+1]+' '+words[index+2])
         print("Calculating Count for Trigram Model")
-        trigram = dict()
-        #trigramfile = open('trigram.data', 'w')
+        if cache:
+            trigram_file = open('trigram.data', 'w')
         trigram = Counter(triwords)
-        #trigramfile.write(str(trigram))
-        #trigramfile.close()
-        return trigram
+        if cache:
+            trigram_file.write(str(trigram))
+            trigram_file.close()
+        self.trigram = trigram
 
-    def createQuadrigram(self, words):
+    def create_quadrigram(self, cache):
         """Method to create Quadrigram Model for words loaded from corpus."""
         print("Creating Quadrigram Model")
+        words = self.words
         quadriwords = []
         for index, item in enumerate(words):
-            if index==len(words)-3:
+            if index == len(words)-3:
                 break
             quadriwords.append(item+' '+words[index+1]+' '+words[index+2]+' '+words[index+3])
         print("Calculating Count for Quadrigram Model")
-        quadrigram = dict()
-        #quadrigramfile = open('fourgram.data', 'w')
-        quadrigram = Counter(fourwords)
-        #quadrigramfile.write(str(fourgram))
-        #quadrigramfile.close()
-        return quadrigram
+        if cache:
+            quadrigram_file = open('fourgram.data', 'w')
+        quadrigram = Counter(quadriwords)
+        if cache:
+            quadrigram_file.write(str(quadrigram))
+            quadrigram_file.close()
+        self.quadrigram = quadrigram
 
-        
-    def createPentigram(self, words):
+    def create_pentigram(self, cache):
         """Method to create Pentigram Model for words loaded from corpus."""
         print("Creating pentigram Model")
+        words = self.words
         pentiwords = []
         for index, item in enumerate(words):
-            if index==len(words)-4:
+            if index == len(words)-4:
                 break
             pentiwords.append(item+' '+words[index+1]+' '+words[index+2]+' '+words[index+3]+' '+words[index+4])
         print("Calculating Count for pentigram Model")
-        pentigram = dict()
-        #pentigramfile = open('pentagram.data', 'w')
-        pentigram = Counter(pentawords)
-        #pentigramfile.write(str(pentagram))
-        #pentigramfile.close()
-        return pentigram
+        if cache:
+            pentigram_file = open('pentagram.data', 'w')
+        pentigram = Counter(pentiwords)
+        if cache:
+            pentigram_file.write(str(pentigram))
+            pentigram_file.close()
+        self.pentigram = pentigram
 
-    def probability(self, word, words = "", gram = 'uni'):
+    def probability(self, word, words="", n=1):
         """Method to calculate the Maximum Likelihood Probability of n-Grams on the basis of various parameters."""
-        if gram == 'uni':
+        if n == 1:
             return calc.log((self.unigram[word]+1)/(len(self.words)+len(self.unigram)))
-        elif gram == 'bi':
+        elif n == 2:
             return calc.log((self.bigram[words]+1)/(self.unigram[word]+len(self.unigram)))
-        elif gram == 'tri':
+        elif n == 3:
             return calc.log((self.trigram[words]+1)/(self.bigram[word]+len(self.unigram)))
-        elif gram == 'quadri':
+        elif n == 4:
             return calc.log((self.quadrigram[words]+1)/(self.trigram[word]+len(self.unigram)))
-        elif gram == 'penti':
+        elif n == 5:
             return calc.log((self.pentigram[words]+1)/(self.quadrigram[word]+len(self.unigram)))
 
-    def sentenceprobability(self, sent, gram='uni', form='antilog'):
+    def sentence_probability(self, sentence, n=1, form='antilog'):
         """Method to calculate cumulative n-gram Maximum Likelihood Probability of a phrase or sentence."""
-        words = sent.lower().split()
-        P=0
-        if gram == 'uni':
+        words = sentence.lower().split()
+        P = 0
+        if n == 1:
             for index, item in enumerate(words):
-                P = P + self.probability(item)
-        if gram == 'bi':
+                P += self.probability(item)
+        if n == 2:
             for index, item in enumerate(words):
-                if index == len(words)- 1: break
-                P = P + self.probability(item, item+' '+words[index+1], 'bi')
-        if gram == 'tri':
+                if index >= len(words) - 1:
+                    break
+                P += self.probability(item, item+' '+words[index+1], 2)
+        if n == 3:
             for index, item in enumerate(words):
-                if index == len(words)- 2: break
-                P = P + self.probability(item+' '+words[index+1], item+' '+words[index+1]+' '+words[index+2], 'tri')
-        if gram == 'quadri':
+                if index >= len(words) - 2:
+                    break
+                P += self.probability(item+' '+words[index+1], item+' '+words[index+1]+' '+words[index+2], 3)
+        if n == 4:
             for index, item in enumerate(words):
-                if index == len(words)- 3: break
-                P = P + self.probability(item+' '+words[index+1]+' '+words[index+2], item+' '+words[index+1]+' '+words[index+2]+' '+words[index+3], 'quadri')
-        if gram == 'penti':
+                if index >= len(words) - 3:
+                    break
+                P += self.probability(item+' '+words[index+1]+' '+words[index+2], item+' '+words[index+1]+' ' +
+                                      words[index+2]+' '+words[index+3], 4)
+        if n == 5:
             for index, item in enumerate(words):
-                if index == len(words)- 4: break
-                P = P + self.probability(item+' '+words[index+1]+' '+words[index+2]+' '+words[index+3], item+' '+words[index+1]+' '+words[index+2]+' '+words[index+3]+' '+words[index+4], 'penti')
+                if index >= len(words) - 4:
+                    break
+                P += self.probability(item+' '+words[index+1]+' '+words[index+2]+' '+words[index+3], item+' ' +
+                                      words[index+1]+' '+words[index+2]+' '+words[index+3]+' '+words[index+4], 5)
         if form == 'log':
             return P
         elif form == 'antilog':
